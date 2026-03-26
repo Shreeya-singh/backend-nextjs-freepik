@@ -10,7 +10,7 @@ export async function OPTIONS() {
   return new Response(null, {
     status: 200,
     headers: {
-      "Access-Control-Allow-Origin": "*", // change in prod
+      "Access-Control-Allow-Origin": "https://www.reddit.com/r/free_pik_ui_dev/?playtest=free-pik-ui",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Authorization",
     },
@@ -87,8 +87,7 @@ export async function POST(req: Request) {
 // ✅ 2. REUSABLE CORS HEADERS
 function corsHeaders() {
   return {
-    "Access-Control-Allow-Origin": "*", // ⚠️ change in production
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Origin": "https://www.reddit.com/r/free_pik_ui_dev/?playtest=free-pik-ui", 
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
   };
 }
