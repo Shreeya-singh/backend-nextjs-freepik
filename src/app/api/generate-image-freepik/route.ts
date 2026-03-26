@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     if (!upstreamResponse.ok) {
       return Response.json(
         {
-          error: "Freepik request failed",
+          error: "freepik request failed",
           status: upstreamResponse.status,
           details: data,
         },
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
       );
     }
 
-    return Response.json(data, { status: 200 });
+    return Response.json({ provider: "freepik", data }, { status: 200 });
   } catch {
     return Response.json({ error: "Invalid JSON body" }, { status: 400 });
   }

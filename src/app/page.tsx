@@ -67,7 +67,7 @@ const Page = () => {
     setError(null);
 
     try {
-      const response = await fetch("/api/generate-image", {
+      const response = await fetch("/api/generate-image-gemini", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt }),
@@ -77,7 +77,14 @@ const Page = () => {
 
       if (!response.ok) {
         setImageUrl(null);
-        setError("Image generation failed. Try another prompt.");
+        const message =
+          typeof data === "object" &&
+          data !== null &&
+          "error" in data &&
+          typeof (data as { error?: unknown }).error === "string"
+            ? (data as { error: string }).error
+            : "Image generation failed.";
+        setError(`${message} (status ${response.status})`);
         return;
       }
 
