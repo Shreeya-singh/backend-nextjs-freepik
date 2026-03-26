@@ -5,23 +5,41 @@ type GenerateImageRequestBody = {
   prompt?: string;
 };
 
+// ✅ 1. HANDLE PREFLIGHT (IMPORTANT)
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*", // change in prod
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    },
+  });
+}
+
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as GenerateImageRequestBody;
     const prompt = body?.prompt?.trim();
 
     if (!prompt) {
-      return Response.json(
-        { error: "Missing required field: prompt" },
-        { status: 400 }
+      return new Response(
+        JSON.stringify({ error: "Missing required field: prompt" }),
+        {
+          status: 400,
+          headers: corsHeaders(),
+        }
       );
     }
 
     const apiKey = process.env.FREEPIK_API_KEY;
     if (!apiKey) {
-      return Response.json(
-        { error: "FREEPIK_API_KEY is not configured" },
-        { status: 500 }
+      return new Response(
+        JSON.stringify({ error: "FREEPIK_API_KEY is not configured" }),
+        {
+          status: 500,
+          headers: corsHeaders(),
+        }
       );
     }
 
@@ -38,18 +56,39 @@ export async function POST(req: Request) {
     const data = await upstreamResponse.json().catch(() => null);
 
     if (!upstreamResponse.ok) {
-      return Response.json(
-        {
+      return new Response(
+        JSON.stringify({
           error: "Freepik request failed",
           status: upstreamResponse.status,
           details: data,
-        },
-        { status: upstreamResponse.status }
+        }),
+        {
+          status: upstreamResponse.status,
+          headers: corsHeaders(),
+        }
       );
     }
 
-    return Response.json(data, { status: 200 });
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: corsHeaders(),
+    });
   } catch {
-    return Response.json({ error: "Invalid JSON body" }, { status: 400 });
+    return new Response(
+      JSON.stringify({ error: "Invalid JSON body" }),
+      {
+        status: 400,
+        headers: corsHeaders(),
+      }
+    );
   }
+}
+
+// ✅ 2. REUSABLE CORS HEADERS
+function corsHeaders() {
+  return {
+    "Access-Control-Allow-Origin": "*", // ⚠️ change in production
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  };
 }
